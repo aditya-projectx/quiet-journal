@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Quiet Journal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        :root {
+            --ink: #1f2430;
+            --paper: #f6f1ea;
+            --accent: #0f766e;
+            --accent-strong: #0b5f59;
+            --muted: #6b6f7a;
+            --panel: #ffffff;
+            --card: #fcfbf7;
+            --shadow: 0 20px 50px rgba(16, 24, 40, 0.18);
+            --border: rgba(31, 36, 48, 0.08);
+            --bg-1: rgba(232, 201, 138, 0.45);
+            --bg-2: rgba(15, 118, 110, 0.15);
+            --input-bg: #fbfaf7;
+        }
+        [data-theme="dark"] {
+            --ink: #e6e8ee;
+            --paper: #0f1218;
+            --accent: #5eead4;
+            --accent-strong: #2dd4bf;
+            --muted: #a1a7b5;
+            --panel: #1a1f2b;
+            --card: #151a24;
+            --shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+            --border: rgba(255, 255, 255, 0.08);
+            --bg-1: rgba(94, 234, 212, 0.12);
+            --bg-2: rgba(76, 92, 119, 0.3);
+            --input-bg: #101521;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: "Manrope", "Segoe UI", Arial, sans-serif;
+            color: var(--ink);
+            background:
+                radial-gradient(600px 300px at 10% 10%, var(--bg-1), transparent 60%),
+                radial-gradient(700px 420px at 90% 10%, var(--bg-2), transparent 60%),
+                linear-gradient(120deg, var(--paper) 0%, rgba(239, 231, 221, 0.9) 100%);
+        }
+        [data-theme="dark"] body,
+        body[data-theme="dark"] {
+            background:
+                radial-gradient(600px 300px at 10% 10%, var(--bg-1), transparent 60%),
+                radial-gradient(700px 420px at 90% 10%, var(--bg-2), transparent 60%),
+                linear-gradient(120deg, #0f1218 0%, #131824 100%);
+        }
+        .app {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: 100vh;
+        }
+        aside {
+            padding: 32px 24px;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(18px);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+        body[data-theme="dark"] aside {
+            background: rgba(17, 22, 31, 0.85);
+        }
+        .brand {
+            font-family: "Playfair Display", "Georgia", serif;
+            font-size: 1.6rem;
+        }
+        .profile {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            padding: 20px 16px;
+            border-radius: 20px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+        #profile-pic {
+            width: 86px;
+            height: 86px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid rgba(15, 118, 110, 0.3);
+            background: #ddd;
+        }
+        body[data-theme="dark"] #profile-pic {
+            border-color: rgba(94, 234, 212, 0.35);
+        }
+        #profile-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        #profile-email {
+            font-size: 0.9rem;
+            color: var(--muted);
+            word-break: break-word;
+        }
+        .btn {
+            border: none;
+            border-radius: 999px;
+            padding: 10px 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, background 0.2s ease;
+            font-size: 0.95rem;
+        }
+        .btn.primary {
+            background: var(--accent);
+            color: #0b1320;
+        }
+        body[data-theme="dark"] .btn.primary {
+            color: #0b1320;
+        }
+        .btn.primary:hover {
+            background: var(--accent-strong);
+            transform: translateY(-1px);
+        }
+        .btn.ghost {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid rgba(31, 36, 48, 0.12);
+        }
+        .btn.ghost:hover {
+            background: rgba(31, 36, 48, 0.05);
+        }
+        body[data-theme="dark"] .btn.ghost {
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+        main {
+            padding: 40px 56px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+        }
+        .header h1 {
+            margin: 0;
+            font-family: "Playfair Display", "Georgia", serif;
+            font-size: 2.2rem;
+        }
+        .header p {
+            margin: 6px 0 0 0;
+            color: var(--muted);
+        }
+        .highlight-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+        }
+        .highlight-card {
+            background: var(--panel);
+            border-radius: 18px;
+            padding: 16px 18px;
+            border: 1px solid var(--border);
+            box-shadow: 0 12px 30px rgba(16, 24, 40, 0.08);
+            display: grid;
+            gap: 6px;
+        }
+        .highlight-card span {
+            font-size: 0.85rem;
+            color: var(--muted);
+        }
+        .highlight-card strong {
+            font-size: 1.2rem;
+        }
+        .prompt-card {
+            background: var(--card);
+            border-radius: 20px;
+            padding: 18px 20px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+        }
+        .prompt-card h3 {
+            margin: 0 0 6px 0;
+            font-size: 1rem;
+            color: var(--muted);
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+        .prompt-card p {
+            margin: 0;
+            font-size: 1.05rem;
+        }
+        .filter-bar {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr 1fr 1fr auto;
+            gap: 12px;
+        }
+        .filter-bar input,
+        .filter-bar select {
+            border-radius: 12px;
+            border: 1px solid rgba(31, 36, 48, 0.12);
+            padding: 10px 12px;
+            font-size: 0.95rem;
+            background: var(--input-bg);
+            color: var(--ink);
+        }
+        .editor {
+            background: var(--panel);
+            border-radius: 24px;
+            padding: 24px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            display: grid;
+            gap: 16px;
+        }
+        .editor textarea {
+            width: 100%;
+            min-height: 140px;
+            border-radius: 16px;
+            padding: 16px;
+            border: 1px solid rgba(31, 36, 48, 0.12);
+            font-size: 1rem;
+            resize: vertical;
+            background: var(--input-bg);
+            color: var(--ink);
+        }
+        .editor textarea:focus {
+            outline: 2px solid rgba(15, 118, 110, 0.2);
+            border-color: var(--accent);
+        }
+        .editor-fields {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        .field {
+            display: grid;
+            gap: 6px;
+        }
+        .field label {
+            font-size: 0.85rem;
+            color: var(--muted);
+        }
+        .field select,
+        .field input {
+            border-radius: 12px;
+            border: 1px solid rgba(31, 36, 48, 0.12);
+            padding: 10px 12px;
+            font-size: 0.95rem;
+            background: var(--input-bg);
+            color: var(--ink);
+        }
+        .editor-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .editor-actions span {
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+        .notes {
+            display: grid;
+            gap: 16px;
+        }
+        .note-card {
+            background: var(--card);
+            border-radius: 18px;
+            padding: 18px 20px;
+            border: 1px solid var(--border);
+            box-shadow: 0 12px 30px rgba(16, 24, 40, 0.08);
+            display: grid;
+            gap: 10px;
+        }
+        .note-card.collapsed .note-body,
+        .note-card.collapsed .note-tags,
+        .note-card.collapsed .note-prompt {
+            display: none;
+        }
+        .note-title {
+            font-weight: 700;
+            font-size: 1.05rem;
+        }
+        .note-body {
+            color: var(--muted);
+            white-space: pre-wrap;
+            line-height: 1.6;
+        }
+        .note-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            color: var(--muted);
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .note-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .note-tag {
+            background: rgba(15, 118, 110, 0.12);
+            color: var(--accent-strong);
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 0.8rem;
+        }
+        .note-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .note-actions button {
+            border: none;
+            background: transparent;
+            color: var(--accent);
+            font-weight: 600;
+            cursor: pointer;
+            padding: 6px 10px;
+            border-radius: 999px;
+        }
+        .note-actions button:hover {
+            background: rgba(15, 118, 110, 0.12);
+        }
+        .note-prompt {
+            font-size: 0.85rem;
+            color: var(--muted);
+        }
+        .empty {
+            text-align: center;
+            padding: 24px;
+            color: var(--muted);
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 18px;
+            border: 1px dashed rgba(31, 36, 48, 0.15);
+        }
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(8, 12, 20, 0.55);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 20;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-card {
+            background: var(--panel);
+            color: var(--ink);
+            border-radius: 20px;
+            padding: 24px;
+            width: min(520px, 100%);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            display: grid;
+            gap: 14px;
+        }
+        .modal-card h3 {
+            margin: 0;
+        }
+        .modal-card input,
+        .modal-card textarea,
+        .modal-card select {
+            border-radius: 12px;
+            border: 1px solid rgba(31, 36, 48, 0.12);
+            padding: 10px 12px;
+            font-size: 0.95rem;
+            background: var(--input-bg);
+            color: var(--ink);
+        }
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        .error-text {
+            color: #e05a5a;
+            font-size: 0.9rem;
+        }
+        @media (max-width: 1100px) {
+            .filter-bar {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        @media (max-width: 980px) {
+            .app {
+                grid-template-columns: 1fr;
+            }
+            aside {
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: space-between;
+                align-items: center;
+            }
+            .profile {
+                flex: 1;
+            }
+            main {
+                padding: 32px 20px;
+            }
+        }
+        @media (max-width: 640px) {
+            aside {
+                gap: 16px;
+            }
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            .editor-fields {
+                grid-template-columns: 1fr;
+            }
+            .editor-actions {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .prompt-card {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+</head>
+<body data-theme="light">
+    <div class="app">
+        <aside>
+            <div class="brand">Quiet Journal</div>
+            <div class="profile">
+                <img src="" alt="Profile Photo" id="profile-pic">
+                <div id="profile-name">Name</div>
+                <div id="profile-email">email@example.com</div>
+                <button class="btn primary" id="theme-toggle">Dark theme</button>
+                <button class="btn ghost change-pass-btn">Change password</button>
+                <button class="btn ghost" id="logout-btn">Log out</button>
+            </div>
+        </aside>
+        <main>
+            <div class="header">
+                <div>
+                    <h1>Today in your journal</h1>
+                    <p>Write freely. Only you can read these entries.</p>
+                </div>
+            </div>
+
+            <section class="highlight-grid">
+                <div class="highlight-card">
+                    <span>Entries today</span>
+                    <strong id="today-count">0</strong>
+                </div>
+                <div class="highlight-card">
+                    <span>Last entry</span>
+                    <strong id="last-entry">No entries yet</strong>
+                </div>
+                <div class="highlight-card">
+                    <span>Draft status</span>
+                    <strong id="draft-status">No draft saved</strong>
+                </div>
+            </section>
+
+            <section class="prompt-card">
+                <div>
+                    <h3>Daily prompt</h3>
+                    <p id="prompt-text">What is one thing you want to remember today?</p>
+                </div>
+                <button class="btn ghost" id="use-prompt">Use prompt</button>
+            </section>
+
+            <section class="filter-bar">
+                <input id="search" type="text" placeholder="Search entries">
+                <select id="mood-filter">
+                    <option value="">All moods</option>
+                    <option value="Calm">Calm</option>
+                    <option value="Happy">Happy</option>
+                    <option value="Focused">Focused</option>
+                    <option value="Grateful">Grateful</option>
+                    <option value="Reflective">Reflective</option>
+                    <option value="Stressed">Stressed</option>
+                </select>
+                <input id="tag-filter" type="text" placeholder="Filter by tag">
+                <select id="date-filter">
+                    <option value="all">All time</option>
+                    <option value="today">Today</option>
+                    <option value="week">This week</option>
+                    <option value="month">This month</option>
+                </select>
+                <button class="btn ghost" id="clear-filters">Clear</button>
+            </section>
+
+            <section class="editor">
+                <textarea rows="5" name="note" placeholder="Start writing here..." id="textarea"></textarea>
+                <div class="editor-fields">
+                    <div class="field">
+                        <label for="mood">Mood</label>
+                        <select id="mood">
+                            <option value="Calm">Calm</option>
+                            <option value="Happy">Happy</option>
+                            <option value="Focused">Focused</option>
+                            <option value="Grateful">Grateful</option>
+                            <option value="Reflective" selected>Reflective</option>
+                            <option value="Stressed">Stressed</option>
+                            <option value="Neutral">Neutral</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label for="tags">Tags (comma separated)</label>
+                        <input id="tags" type="text" placeholder="morning, work, family">
+                    </div>
+                </div>
+                <div class="editor-actions">
+                    <span>Tip: Press Ctrl + Enter to save quickly.</span>
+                    <button class="btn primary" id="btn">Save entry</button>
+                </div>
+            </section>
+
+            <section id="notes-list" class="notes"></section>
+        </main>
+    </div>
+
+    <div class="modal" id="password-modal">
+        <div class="modal-card">
+            <h3>Change password</h3>
+            <label>Current password</label>
+            <input id="old-pass" type="password" placeholder="Enter current password">
+            <label>New password</label>
+            <input id="new-pass" type="password" placeholder="Enter new password">
+            <label>Confirm new password</label>
+            <input id="confirm-pass" type="password" placeholder="Confirm new password">
+            <div class="error-text" id="pass-error"></div>
+            <div class="modal-actions">
+                <button class="btn ghost" id="cancel-pass">Cancel</button>
+                <button class="btn primary" id="save-pass">Update</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="edit-modal">
+        <div class="modal-card">
+            <h3>Edit entry</h3>
+            <label>Entry text</label>
+            <textarea id="edit-text" rows="6"></textarea>
+            <label>Mood</label>
+            <select id="edit-mood">
+                <option value="Calm">Calm</option>
+                <option value="Happy">Happy</option>
+                <option value="Focused">Focused</option>
+                <option value="Grateful">Grateful</option>
+                <option value="Reflective">Reflective</option>
+                <option value="Stressed">Stressed</option>
+                <option value="Neutral">Neutral</option>
+            </select>
+            <label>Tags (comma separated)</label>
+            <input id="edit-tags" type="text">
+            <div class="error-text" id="edit-error"></div>
+            <div class="modal-actions">
+                <button class="btn ghost" id="cancel-edit">Cancel</button>
+                <button class="btn primary" id="save-edit">Save changes</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentPrompt = '';
+        let promptUsed = false;
+        let currentUserId = '';
+        let editingNoteId = '';
+
+        const prompts = [
+            'What is one thing you want to remember today?',
+            'Describe a small win you had this week.',
+            'How do you want tomorrow to feel?',
+            'What made you smile recently?',
+            'What is something you are grateful for right now?',
+            'Write about a moment of calm you had today.',
+            'What is one lesson you are learning?',
+            'Where are you spending your energy lately?'
+        ];
+
+        function hashPromptSeed(seed) {
+            let hash = 0;
+            for (let i = 0; i < seed.length; i++) {
+                hash = (hash << 5) - hash + seed.charCodeAt(i);
+                hash |= 0;
+            }
+            return Math.abs(hash);
+        }
+
+        function setDailyPrompt() {
+            const todayKey = new Date().toISOString().slice(0, 10);
+            const index = hashPromptSeed(todayKey) % prompts.length;
+            currentPrompt = prompts[index];
+            document.getElementById('prompt-text').innerText = currentPrompt;
+        }
+
+        function applyTheme(theme) {
+            document.body.setAttribute('data-theme', theme);
+            localStorage.setItem('journalTheme', theme);
+            const toggle = document.getElementById('theme-toggle');
+            toggle.innerText = theme === 'dark' ? 'Light theme' : 'Dark theme';
+        }
+
+        setDailyPrompt();
+
+        const savedTheme = localStorage.getItem('journalTheme') || 'light';
+        applyTheme(savedTheme);
+
+        document.getElementById('theme-toggle').addEventListener('click', () => {
+            const current = document.body.getAttribute('data-theme') || 'light';
+            applyTheme(current === 'dark' ? 'light' : 'dark');
+        });
+
+        fetch('/getUser')
+            .then(res => res.json())
+            .then(data => {
+                let pic = document.getElementById('profile-pic');
+                let name = document.getElementById('profile-name');
+                let email = document.getElementById('profile-email');
+
+                currentUserId = data.id;
+
+                if (data.profile) {
+                    pic.src = `/user/image/${data.profile}`;
+                } else {
+                    pic.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(data.name)}`;
+                }
+                name.innerText = data.name;
+                email.innerText = data.email;
+
+                restoreDraft();
+            });
+
+        const passwordModal = document.getElementById('password-modal');
+        const changePassBtn = document.querySelector('.change-pass-btn');
+        const passError = document.getElementById('pass-error');
+
+        function openPasswordModal() {
+            document.getElementById('old-pass').value = '';
+            document.getElementById('new-pass').value = '';
+            document.getElementById('confirm-pass').value = '';
+            passError.innerText = '';
+            passwordModal.classList.add('active');
+        }
+
+        function closePasswordModal() {
+            passwordModal.classList.remove('active');
+        }
+
+        changePassBtn.onclick = openPasswordModal;
+        document.getElementById('cancel-pass').onclick = closePasswordModal;
+
+        document.getElementById('save-pass').onclick = () => {
+            const Opass = document.getElementById('old-pass').value.trim();
+            const Npass = document.getElementById('new-pass').value.trim();
+            const Cpass = document.getElementById('confirm-pass').value.trim();
+
+            if (!Opass || !Npass) {
+                passError.innerText = 'Please fill in both password fields.';
+                return;
+            }
+            if (Npass !== Cpass) {
+                passError.innerText = 'New passwords do not match.';
+                return;
+            }
+
+            fetch('/changeP', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ Opass, Npass })
+            })
+                .then(r => r.json())
+                .then(r => {
+                    if (r.success) {
+                        closePasswordModal();
+                        alert('Password updated successfully');
+                    } else {
+                        passError.innerText = r.Message || 'Unable to update password.';
+                    }
+                });
+        };
+
+        let logoutBtn = document.getElementById('logout-btn');
+        logoutBtn.onclick = () => {
+            fetch('/logout', {
+                method: 'POST',
+                credentials: 'include'
+            })
+                .then(r => r.json())
+                .then(r => {
+                    if (r.success) {
+                        alert(r.Message);
+                        return window.location.href = '/login';
+                    } else {
+                        alert(r.Message);
+                    }
+                });
+        };
+
+        const textarea = document.querySelector('#textarea');
+        const btn = document.querySelector('#btn');
+        const moodSelect = document.querySelector('#mood');
+        const tagsInput = document.querySelector('#tags');
+
+        document.getElementById('use-prompt').addEventListener('click', () => {
+            if (!textarea.value.trim()) {
+                textarea.value = currentPrompt + '\n\n';
+            } else {
+                textarea.value = textarea.value.trim() + '\n\n' + currentPrompt + '\n\n';
+            }
+            promptUsed = true;
+            textarea.focus();
+            saveDraft();
+        });
+
+        function saveNote() {
+            let note = textarea.value.trim();
+            if (!note) return;
+
+            fetch('/Notes', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    note,
+                    mood: moodSelect.value,
+                    tags: tagsInput.value,
+                    prompt: promptUsed ? currentPrompt : ''
+                })
+            })
+                .then(r => r.json())
+                .then(r => {
+                    if (r.success) {
+                        textarea.value = '';
+                        tagsInput.value = '';
+                        moodSelect.value = 'Reflective';
+                        promptUsed = false;
+                        clearDraft();
+                    }
+                    loadNotes();
+                });
+        }
+
+        btn.addEventListener('click', saveNote);
+        textarea.addEventListener('keydown', (event) => {
+            if (event.ctrlKey && event.key === 'Enter') {
+                saveNote();
+            }
+        });
+
+        const editModal = document.getElementById('edit-modal');
+        const editError = document.getElementById('edit-error');
+
+        function openEditModal(note) {
+            editingNoteId = note._id;
+            document.getElementById('edit-text').value = note.text;
+            document.getElementById('edit-mood').value = note.mood || 'Reflective';
+            document.getElementById('edit-tags').value = (note.tags || []).join(', ');
+            editError.innerText = '';
+            editModal.classList.add('active');
+        }
+
+        function closeEditModal() {
+            editModal.classList.remove('active');
+        }
+
+        document.getElementById('cancel-edit').onclick = closeEditModal;
+        document.getElementById('save-edit').onclick = () => {
+            const newText = document.getElementById('edit-text').value.trim();
+            const newMood = document.getElementById('edit-mood').value;
+            const newTags = document.getElementById('edit-tags').value.trim();
+
+            if (!newText) {
+                editError.innerText = 'Entry text cannot be empty.';
+                return;
+            }
+
+            fetch(`/Notes/${editingNoteId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    note: newText,
+                    mood: newMood,
+                    tags: newTags
+                })
+            })
+                .then(r => r.json())
+                .then(r => {
+                    if (r.success) {
+                        closeEditModal();
+                        loadNotes();
+                    } else {
+                        editError.innerText = 'Unable to update entry.';
+                    }
+                });
+        };
+
+        function createNoteCard(note) {
+            let card = document.createElement('div');
+            card.className = 'note-card collapsed';
+
+            let titleText = note.text.split('\n')[0].trim();
+            if (!titleText) titleText = 'Untitled entry';
+            let bodyText = note.text.split('\n').slice(1).join('\n').trim();
+
+            let title = document.createElement('div');
+            title.className = 'note-title';
+            title.innerText = titleText.length > 70 ? titleText.slice(0, 70) + '...' : titleText;
+
+            let body = document.createElement('div');
+            body.className = 'note-body';
+            body.innerText = bodyText || 'No additional text';
+
+            let tags = document.createElement('div');
+            tags.className = 'note-tags';
+
+            if (note.mood) {
+                let mood = document.createElement('span');
+                mood.className = 'note-tag';
+                mood.innerText = note.mood;
+                tags.appendChild(mood);
+            }
+
+            if (note.tags && note.tags.length) {
+                note.tags.forEach(tag => {
+                    let badge = document.createElement('span');
+                    badge.className = 'note-tag';
+                    badge.innerText = tag;
+                    tags.appendChild(badge);
+                });
+            }
+
+            let prompt = document.createElement('div');
+            prompt.className = 'note-prompt';
+            if (note.prompt) {
+                prompt.innerText = `Prompt: ${note.prompt}`;
+            }
+
+            let meta = document.createElement('div');
+            meta.className = 'note-meta';
+
+            let time = document.createElement('span');
+            time.innerText = new Date(note.time).toLocaleString();
+
+            let actions = document.createElement('div');
+            actions.className = 'note-actions';
+
+            let toggle = document.createElement('button');
+            toggle.innerText = 'Expand';
+            toggle.onclick = () => {
+                const isCollapsed = card.classList.toggle('collapsed');
+                toggle.innerText = isCollapsed ? 'Expand' : 'Collapse';
+            };
+
+            let edit = document.createElement('button');
+            edit.innerText = 'Edit';
+            edit.onclick = () => openEditModal(note);
+
+            let del = document.createElement('button');
+            del.innerText = 'Delete';
+            del.onclick = () => {
+                fetch(`/Notes/${note._id}`, { method: 'DELETE' })
+                    .then(res => res.json())
+                    .then(d => {
+                        if (d.success) loadNotes();
+                    });
+            };
+
+            actions.appendChild(toggle);
+            actions.appendChild(edit);
+            actions.appendChild(del);
+            meta.appendChild(time);
+            meta.appendChild(actions);
+
+            card.appendChild(title);
+            card.appendChild(body);
+            if (tags.childElementCount) card.appendChild(tags);
+            if (note.prompt) card.appendChild(prompt);
+            card.appendChild(meta);
+
+            return card;
+        }
+
+        function updateHighlights(notes) {
+            const today = new Date();
+            const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+            const todaysNotes = notes.filter(note => new Date(note.time) >= startOfDay);
+            document.getElementById('today-count').innerText = todaysNotes.length;
+
+            if (notes.length) {
+                document.getElementById('last-entry').innerText = new Date(notes[0].time).toLocaleString();
+            } else {
+                document.getElementById('last-entry').innerText = 'No entries yet';
+            }
+        }
+
+        function buildQuery() {
+            const params = new URLSearchParams();
+            const search = document.getElementById('search').value.trim();
+            const mood = document.getElementById('mood-filter').value;
+            const tag = document.getElementById('tag-filter').value.trim();
+            const dateFilter = document.getElementById('date-filter').value;
+
+            if (search) params.set('q', search);
+            if (mood) params.set('mood', mood);
+            if (tag) params.set('tag', tag);
+
+            if (dateFilter !== 'all') {
+                const now = new Date();
+                let from = null;
+                if (dateFilter === 'today') {
+                    from = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                } else if (dateFilter === 'week') {
+                    from = new Date(now);
+                    from.setDate(now.getDate() - 7);
+                } else if (dateFilter === 'month') {
+                    from = new Date(now);
+                    from.setMonth(now.getMonth() - 1);
+                }
+                if (from) params.set('from', from.toISOString());
+            }
+
+            return params.toString();
+        }
+
+        function loadNotes() {
+            const query = buildQuery();
+            const url = query ? `/getNotes?${query}` : '/getNotes';
+
+            fetch(url)
+                .then(res => res.json())
+                .then(notes => {
+                    let list = document.getElementById('notes-list');
+                    list.innerHTML = '';
+
+                    if (!notes.length) {
+                        let empty = document.createElement('div');
+                        empty.className = 'empty';
+                        empty.innerText = 'No entries yet. Write your first journal note above.';
+                        list.appendChild(empty);
+                        updateHighlights(notes);
+                        return;
+                    }
+
+                    notes.forEach(note => {
+                        list.appendChild(createNoteCard(note));
+                    });
+
+                    updateHighlights(notes);
+                });
+        }
+
+        function draftKey() {
+            return currentUserId ? `journalDraft:${currentUserId}` : 'journalDraft:guest';
+        }
+
+        function saveDraft() {
+            if (!currentUserId) return;
+            const payload = {
+                text: textarea.value,
+                mood: moodSelect.value,
+                tags: tagsInput.value,
+                prompt: promptUsed ? currentPrompt : '',
+                savedAt: new Date().toISOString()
+            };
+            localStorage.setItem(draftKey(), JSON.stringify(payload));
+            document.getElementById('draft-status').innerText = `Draft saved ${new Date(payload.savedAt).toLocaleTimeString()}`;
+        }
+
+        function restoreDraft() {
+            if (!currentUserId) return;
+            const saved = localStorage.getItem(draftKey());
+            if (!saved) return;
+            try {
+                const payload = JSON.parse(saved);
+                if (payload.text) textarea.value = payload.text;
+                if (payload.mood) moodSelect.value = payload.mood;
+                if (payload.tags) tagsInput.value = payload.tags;
+                if (payload.prompt) promptUsed = true;
+                if (payload.savedAt) {
+                    document.getElementById('draft-status').innerText = `Draft saved ${new Date(payload.savedAt).toLocaleTimeString()}`;
+                }
+            } catch (e) {
+                console.warn('Failed to restore draft');
+            }
+        }
+
+        function clearDraft() {
+            localStorage.removeItem(draftKey());
+            document.getElementById('draft-status').innerText = 'No draft saved';
+        }
+
+        let draftTimer = null;
+        function scheduleDraftSave() {
+            if (draftTimer) clearTimeout(draftTimer);
+            draftTimer = setTimeout(saveDraft, 500);
+        }
+
+        textarea.addEventListener('input', scheduleDraftSave);
+        moodSelect.addEventListener('change', scheduleDraftSave);
+        tagsInput.addEventListener('input', scheduleDraftSave);
+
+        document.getElementById('search').addEventListener('input', loadNotes);
+        document.getElementById('mood-filter').addEventListener('change', loadNotes);
+        document.getElementById('tag-filter').addEventListener('input', loadNotes);
+        document.getElementById('date-filter').addEventListener('change', loadNotes);
+        document.getElementById('clear-filters').addEventListener('click', () => {
+            document.getElementById('search').value = '';
+            document.getElementById('mood-filter').value = '';
+            document.getElementById('tag-filter').value = '';
+            document.getElementById('date-filter').value = 'all';
+            loadNotes();
+        });
+
+        loadNotes();
+    </script>
+</body>
+</html>
