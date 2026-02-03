@@ -14,7 +14,7 @@ services:
         sync: false
       - key: ./DB
         value: /var/data
-    disks:
-      - name: uploads
-        mountPath: /var/data
-        sizeGB: 1
+    disk:
+      name: uploads
+      mountPath: /var/data
+      sizeGB: 1
