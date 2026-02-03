@@ -8,9 +8,9 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
-      - key: MONGODB_URI
+      - key: mongodb+srv://aditya:aditya@cluster0.vtea3wk.mongodb.net/
         sync: false
-      - key: SESSION_SECRET
+      - key: mysecrettt
         sync: false
       - key: DATA_DIR
         value: /var/data
