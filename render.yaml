@@ -12,7 +12,7 @@ services:
         sync: false
       - key: mysecrettt
         sync: false
-      - key: DATA_DIR
+      - key: ./DB
         value: /var/data
     disks:
       - name: uploads
